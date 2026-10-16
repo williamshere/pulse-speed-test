@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pulse — Internet Speed Test Suite</title>
+<link rel="stylesheet" href="style.css" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='42' fill='%230f766e'/><path d='M28 58 L44 58 L50 36 L58 66 L64 58 L74 58' stroke='white' stroke-width='6' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>" />
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-mark" aria-hidden="true">
+      <svg viewBox="0 0 100 100" fill="none"><circle cx="50" cy="50" r="42" fill="#0F766E"/><path d="M24 58 L42 58 L49 34 L58 68 L65 58 L76 58" stroke="white" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div>
+      <div class="brand-name">Pulse</div>
+      <div class="brand-sub">Internet Speed Test Suite</div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <span class="server-pill" id="serverPill"><span class="dot dot-idle"></span> Cloudflare Edge</span>
+    <button class="btn-ghost" id="aboutBtn" type="button">How it works</button>
+  </div>
+</header>
+
+<main class="layout">
+  <!-- Hero / Gauge -->
+  <section class="hero panel">
+    <div class="hero-top">
+      <div>
+        <h1>How fast is your connection?</h1>
+        <p class="hero-desc">Real download, upload, and latency measured against Cloudflare's global edge. No install, no account.</p>
+      </div>
+      <div class="phase" id="phaseLabel">Ready</div>
+    </div>
+
+    <div class="gauge-wrap">
+      <div class="gauge">
+        <svg class="gauge-svg" viewBox="0 0 320 190" aria-hidden="true">
+          <!-- track -->
+          <path d="M 30 165 A 135 135 0 0 1 290 165" fill="none" stroke="#E6EDEB" stroke-width="14" stroke-linecap="round"/>
+          <!-- ticks -->
+          <g id="ticks"></g>
+          <!-- progress -->
+          <path id="gaugeArc" d="M 30 165 A 135 135 0 0 1 290 165" fill="none" stroke="#0F766E" stroke-width="14" stroke-linecap="round" stroke-dasharray="424" stroke-dashoffset="424"/>
+        </svg>
+        <div class="gauge-center">
+          <div class="gauge-value" id="gaugeValue">0.0</div>
+          <div class="gauge-unit">Mbps</div>
+          <div class="gauge-label" id="gaugeLabel">Press Start Test</div>
+        </div>
+        <div class="gauge-scale"><span>0</span><span>10</span><span>50</span><span>100</span><span>500</span><span>1000+</span></div>
+      </div>
+
+      <div class="hero-actions">
+        <button class="btn-primary" id="startBtn" type="button">
+          <span id="startBtnText">Start Test</span>
+        </button>
+        <button class="btn-secondary hidden" id="cancelBtn" type="button">Cancel</button>
+        <p class="hero-hint" id="liveHint">Tests take about 20–30 seconds. Keep this tab in focus for best accuracy.</p>
+        <div class="progress-track" aria-hidden="true"><div class="progress-bar" id="progressBar"></div></div>
+        <div class="steps" id="steps">
+          <div class="step" data-step="ping"><span class="step-dot"></span> Ping</div>
+          <span class="step-line"></span>
+          <div class="step" data-step="download"><span class="step-dot"></span> Download</div>
+          <span class="step-line"></span>
+          <div class="step" data-step="upload"><span class="step-dot"></span> Upload</div>
+          <span class="step-line"></span>
+          <div class="step" data-step="done"><span class="step-dot"></span> Done</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Results -->
+  <section class="results-grid">
+    <article class="card">
+      <div class="card-head"><span class="card-icon dl">↓</span><span>Download</span><span class="card-badge" id="dlBadge">—</span></div>
+      <div class="card-value"><span id="dlValue">—</span><small>Mbps</small></div>
+      <div class="card-sub" id="dlSub">Your download speed</div>
+      <div class="meter"><div class="meter-fill fill-dl" id="dlMeter"></div></div>
+    </article>
+
+    <article class="card">
+      <div class="card-head"><span class="card-icon ul">↑</span><span>Upload</span><span class="card-badge" id="ulBadge">—</span></div>
+      <div class="card-value"><span id="ulValue">—</span><small>Mbps</small></div>
+      <div class="card-sub" id="ulSub">Your upload speed</div>
+      <div class="meter"><div class="meter-fill fill-ul" id="ulMeter"></div></div>
+    </article>
+
+    <article class="card">
+      <div class="card-head"><span class="card-icon ping">◐</span><span>Ping</span></div>
+      <div class="card-value"><span id="pingValue">—</span><small>ms</small></div>
+      <div class="card-sub" id="pingSub">Latency to edge server</div>
+      <div class="mini-stats">
+        <span>Jitter <b id="jitterValue">—</b></span>
+        <span>Server <b id="serverValue">Auto</b></span>
+      </div>
+    </article>
+
+    <article class="card card-verdict">
+      <div class="card-head"><span>Verdict</span><span class="verdict-pill" id="verdictPill">Not tested</span></div>
+      <p class="verdict-text" id="verdictText">Run a test to see what your connection is good for — streaming, gaming, calls, and more.</p>
+      <div class="verdict-list" id="verdictList">
+        <div class="v-row"><span>4K streaming</span><b>—</b></div>
+        <div class="v-row"><span>Video calls</span><b>—</b></div>
+        <div class="v-row"><span>Online gaming</span><b>—</b></div>
+        <div class="v-row"><span>Large uploads</span><b>—</b></div>
+      </div>
+    </article>
+  </section>
+
+  <!-- Details + History (light, local only) -->
+  <section class="bottom-grid">
+    <div class="panel details">
+      <h2>Connection details</h2>
+      <dl class="detail-list">
+        <div><dt>Test server</dt><dd id="dServer">Cloudflare — Auto (closest edge)</dd></div>
+        <div><dt>Your IP / ISP</dt><dd id="dIp">Detected after test starts</dd></div>
+        <div><dt>Test duration</dt><dd id="dDuration">—</dd></div>
+        <div><dt>Data used</dt><dd id="dData">—</dd></div>
+        <div><dt>Last tested</dt><dd id="dTime">—</dd></div>
+      </dl>
+      <div class="detail-actions">
+        <button class="btn-secondary" id="copyBtn" type="button" disabled>Copy results</button>
+        <button class="btn-secondary" id="shareBtn" type="button" disabled>Share</button>
+      </div>
+      <p class="copy-feedback" id="copyFeedback" aria-live="polite"></p>
+    </div>
+
+    <div class="panel history">
+      <div class="history-head">
+        <h2>Recent tests</h2>
+        <button class="btn-ghost small" id="clearHistoryBtn" type="button">Clear</button>
+      </div>
+      <div id="historyList" class="history-list">
+        <p class="empty">No tests yet. Your last 8 results will appear here and stay on this device.</p>
+      </div>
+    </div>
+  </section>
+
+  <p class="footnote">Pulse measures real throughput using parallel connections to Cloudflare's edge network (<code>speed.cloudflare.com</code>). Results depend on Wi-Fi, device, and network load. For comparison, 25 Mbps handles one 4K stream, 10 Mbps a smooth HD video call, and under 30 ms ping feels responsive for gaming.</p>
+</main>
+
+<dialog id="aboutDialog">
+  <div class="dialog-inner">
+    <h2>How Pulse works</h2>
+    <ol>
+      <li><b>Ping</b> — sends tiny requests to the edge and times the round trip. Lower is better. Jitter is how much that time varies.</li>
+      <li><b>Download</b> — opens several parallel downloads and counts bytes arriving over time to calculate Mbps.</li>
+      <li><b>Upload</b> — posts generated data back to the edge and measures how fast it leaves your device.</li>
+    </ol>
+    <p>Nothing is uploaded or stored on a server. History lives only in your browser's local storage.</p>
+    <button class="btn-primary" id="closeDialogBtn" type="button">Got it</button>
+  </div>
+</dialog>
+
+<script src="app.js"></script>
+</body>
+</html>
