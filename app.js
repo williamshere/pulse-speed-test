@@ -13,8 +13,37 @@ const els = {
   copyBtn: $("#copyBtn"), shareBtn: $("#shareBtn"), copyFeedback: $("#copyFeedback"),
   historyList: $("#historyList"), clearHistoryBtn: $("#clearHistoryBtn"),
   aboutBtn: $("#aboutBtn"), aboutDialog: $("#aboutDialog"), closeDialogBtn: $("#closeDialogBtn"),
+  fixPanel: $("#fixPanel"), fixTitle: $("#fixTitle"), fixText: $("#fixText"), fixLink: $("#fixLink"),
   ticks: $("#ticks"),
 };
+
+// Affiliate program: after signing up (e.g. a router/VPN program), paste the
+// link and label here. While url is empty, Pulse shows the tip with no link.
+const AFFILIATE = { url: "", label: "See recommended gear" };
+
+function tipFor(dl, ul, ping){
+  if(!Number.isFinite(dl)) return null;
+  if(dl < 10) return { title: "Your download is the bottleneck", text: "Under 10 Mbps usually means weak Wi-Fi or an old router. Try testing next to the router, switch to the 5 GHz band, and restart the router. If it stays this slow everywhere in the house, a modern mesh Wi-Fi system is the fix that helps most." };
+  if(dl < 25) return { title: "Your download could be better", text: "You are below the 25 Mbps needed for smooth 4K. Move closer to the router or use 5 GHz Wi-Fi, and test again at a quieter time of day. If speeds stay under 25 Mbps, a mesh Wi-Fi system or a call to your provider is worth it." };
+  if(ping > 80) return { title: "Your ping is high", text: "Speed is fine, but latency over 80 ms causes lag in games and calls. A wired Ethernet connection helps most. If you must stay on Wi-Fi, get closer to the router and keep other devices from uploading while you play." };
+  if(ul < 10) return { title: "Your upload is slow", text: "Under 10 Mbps upload makes video calls and cloud backups drag. Test on a wired connection if you can. If upload stays low, ask your provider about a plan with higher upload — many cable plans are download-heavy." };
+  return { title: "Your connection is in good shape", text: "No fix needed — download, upload, and ping all look healthy. If a specific room still feels slow, that room is a Wi-Fi coverage problem, and a mesh node placed there will solve it." };
+}
+
+function showFixTip(dl, ul, ping){
+  const tip = tipFor(dl, ul, ping);
+  if(!tip) return;
+  els.fixTitle.textContent = tip.title;
+  els.fixText.textContent = tip.text;
+  if(AFFILIATE.url){
+    els.fixLink.href = AFFILIATE.url;
+    els.fixLink.textContent = AFFILIATE.label;
+    els.fixLink.classList.remove("hidden");
+  } else {
+    els.fixLink.classList.add("hidden");
+  }
+  els.fixPanel.classList.remove("hidden");
+}
 
 // Gauge ticks (log-ish scale labels already in HTML; ticks are decorative)
 (function buildTicks(){
@@ -329,6 +358,7 @@ function resetUI(){
     <div class="v-row"><span>Large uploads</span><b>—</b></div>`;
   els.copyBtn.disabled = true; els.shareBtn.disabled = true;
   els.copyFeedback.textContent="";
+  els.fixPanel.classList.add("hidden");
   setProgress(0);
   ["ping","download","upload","done"].forEach(s=>setStep(s,""));
 }
@@ -428,6 +458,7 @@ async function runTest(){
     els.dData.textContent = totalBytes>=1_000_000_000 ? `${(totalBytes/1_000_000_000).toFixed(2)} GB` : `${(totalBytes/1_000_000).toFixed(1)} MB`;
     els.dTime.textContent = new Date().toLocaleString();
 
+    showFixTip(dlRes.mbps, ulRes.mbps, pingRes.ping);
     lastResult = { dl: dlRes.mbps, ul: ulRes.mbps, ping: pingRes.ping, jitter: pingRes.jitter, time: Date.now(), duration: durationSec, dataMB: totalBytes/1_000_000 };
     els.copyBtn.disabled = false; els.shareBtn.disabled = false;
     saveHistory(lastResult);

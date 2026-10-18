@@ -148,6 +148,14 @@ button{font:inherit;cursor:pointer}
 .v-row{display:flex;justify-content:space-between;font-size:13px;border-top:1px solid #21362E;padding-top:7px;color:#D6E6DF}
 .v-row b{color:white}
 
+/* Fix tip */
+.fix-panel{margin-top:14px;padding:18px;background:var(--teal-soft)}
+.fix-panel h2{margin:0 0 8px;font-size:15px;letter-spacing:-.01em}
+.fix-text{margin:0;font-size:14px;line-height:1.6;max-width:760px}
+.fix-link{display:inline-block;margin-top:12px;text-decoration:none}
+.fix-disclosure{margin:12px 0 0;font-size:12px;color:var(--muted);line-height:1.5;max-width:760px}
+.footnote a{color:var(--teal-dark);font-weight:650}
+
 /* Bottom */
 .bottom-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
 @media(max-width:820px){ .bottom-grid{grid-template-columns:1fr} }
