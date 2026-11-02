@@ -21,6 +21,7 @@
   </div>
   <div class="topbar-right">
     <span class="server-pill" id="serverPill"><span class="dot dot-idle"></span> Cloudflare Edge</span>
+    <button class="btn-ghost" id="settingsBtn" type="button">Settings</button>
     <button class="btn-ghost" id="aboutBtn" type="button">How it works</button>
   </div>
 </header>
@@ -165,6 +166,36 @@
   </div>
 </dialog>
 
+
+<dialog id="settingsDialog">
+  <div class="dialog-inner">
+    <h2>Settings</h2>
+    <div class="settings-form">
+      <div class="setting-group">
+        <label>Download Test Duration (s):</label>
+        <input type="number" id="dlDurationInput" min="5" max="30" value="10">
+      </div>
+      <div class="setting-group">
+        <label>Download Parallel Streams:</label>
+        <input type="number" id="dlParallelInput" min="1" max="10" value="4">
+      </div>
+      <div class="setting-group">
+        <label>Upload Test Duration (s):</label>
+        <input type="number" id="ulDurationInput" min="5" max="30" value="10">
+      </div>
+      <div class="setting-group">
+        <label>Upload Parallel Streams:</label>
+        <input type="number" id="ulParallelInput" min="1" max="10" value="3">
+      </div>
+    </div>
+    <div class="settings-actions">
+      <button class="btn-secondary" id="cancelSettingsBtn" type="button">Cancel</button>
+      <button class="btn-primary" id="saveSettingsBtn" type="button">Save</button>
+    </div>
+  </div>
+</dialog>
+
 <script src="app.js"></script>
+
 </body>
 </html>

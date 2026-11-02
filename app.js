@@ -13,6 +13,8 @@ const els = {
   copyBtn: $("#copyBtn"), shareBtn: $("#shareBtn"), copyFeedback: $("#copyFeedback"),
   historyList: $("#historyList"), clearHistoryBtn: $("#clearHistoryBtn"),
   aboutBtn: $("#aboutBtn"), aboutDialog: $("#aboutDialog"), closeDialogBtn: $("#closeDialogBtn"),
+  settingsBtn: $("#settingsBtn"), settingsDialog: $("#settingsDialog"), saveSettingsBtn: $("#saveSettingsBtn"), cancelSettingsBtn: $("#cancelSettingsBtn"),
+  dlDurationInput: $("#dlDurationInput"), dlParallelInput: $("#dlParallelInput"), ulDurationInput: $("#ulDurationInput"), ulParallelInput: $("#ulParallelInput"),
   fixPanel: $("#fixPanel"), fixTitle: $("#fixTitle"), fixText: $("#fixText"), fixLink: $("#fixLink"),
   ticks: $("#ticks"),
 };
@@ -178,9 +180,8 @@ async function measurePing(signal){
 
 // --- Download ---
 async function measureDownload(signal, onProgress){
-  // Adaptive: 4 parallel streams, 10 seconds, sizes grow
-  const DURATION_MS = 10000;
-  const PARALLEL = 4;
+  const DURATION_MS = TEST_CONFIG.dlDuration * 1000;
+  const PARALLEL = TEST_CONFIG.dlParallel;
   const start = performance.now();
   let bytes = 0;
   let lastBytes = 0;
@@ -250,8 +251,8 @@ async function measureDownload(signal, onProgress){
 
 // --- Upload ---
 async function measureUpload(signal, onProgress){
-  const DURATION_MS = 10000;
-  const PARALLEL = 3;
+  const DURATION_MS = TEST_CONFIG.ulDuration * 1000;
+  const PARALLEL = TEST_CONFIG.ulParallel;
   const start = performance.now();
   let bytes = 0;
   let lastBytes = 0, lastTime = start, currentMbps = 0;
@@ -528,3 +529,37 @@ els.aboutDialog.addEventListener("click", (e)=>{ if(e.target===els.aboutDialog) 
 document.addEventListener("keydown", (e)=>{
   if(e.code==="Space" && document.activeElement===document.body){ e.preventDefault(); if(!isRunning) runTest(); }
 });
+
+
+// --- Settings Config ---
+const CONFIG_KEY = "pulse-speed-config-v1";
+let TEST_CONFIG = { dlDuration: 10, dlParallel: 4, ulDuration: 10, ulParallel: 3 };
+try{
+  const saved = JSON.parse(localStorage.getItem(CONFIG_KEY));
+  if(saved) TEST_CONFIG = { ...TEST_CONFIG, ...saved };
+}catch{}
+
+function applyConfigToUI() {
+  els.dlDurationInput.value = TEST_CONFIG.dlDuration;
+  els.dlParallelInput.value = TEST_CONFIG.dlParallel;
+  els.ulDurationInput.value = TEST_CONFIG.ulDuration;
+  els.ulParallelInput.value = TEST_CONFIG.ulParallel;
+}
+applyConfigToUI();
+
+els.settingsBtn.addEventListener("click", () => {
+  applyConfigToUI();
+  els.settingsDialog.showModal();
+});
+els.cancelSettingsBtn.addEventListener("click", () => els.settingsDialog.close());
+els.saveSettingsBtn.addEventListener("click", () => {
+  TEST_CONFIG = {
+    dlDuration: Math.max(5, Math.min(30, parseInt(els.dlDurationInput.value, 10) || 10)),
+    dlParallel: Math.max(1, Math.min(10, parseInt(els.dlParallelInput.value, 10) || 4)),
+    ulDuration: Math.max(5, Math.min(30, parseInt(els.ulDurationInput.value, 10) || 10)),
+    ulParallel: Math.max(1, Math.min(10, parseInt(els.ulParallelInput.value, 10) || 3)),
+  };
+  try{ localStorage.setItem(CONFIG_KEY, JSON.stringify(TEST_CONFIG)); }catch{}
+  els.settingsDialog.close();
+});
+els.settingsDialog.addEventListener("click", (e) => { if (e.target === els.settingsDialog) els.settingsDialog.close(); });
