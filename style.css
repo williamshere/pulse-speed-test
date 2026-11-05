@@ -1,21 +1,20 @@
 :root{
-  --bg:#F2F5F3;
+  --bg:#F4F7F6;
   --panel:#FFFFFF;
-  --ink:#13201C;
-  --muted:#5B6B66;
-  --line:#DCE6E2;
-  --teal:#0F766E;
+  --line:#E2E8F0;
+  --ink:#0F1F1A;
+  --muted:#516A61;
+  --teal:#0D9488;
   --teal-dark:#115E59;
-  --teal-soft:#E6F4F1;
-  --amber:#D97706;
+  --teal-soft:#E0F2FE;
   --amber-soft:#FEF3C7;
-  --rose:#BE3452;
-  --radius:14px;
+  --radius:16px;
 }
+
 *{box-sizing:border-box}
-html,body{margin:0;padding:0}
 body{
-  font-family: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  margin:0;
+  font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   background:var(--bg);
   color:var(--ink);
   line-height:1.5;
@@ -196,3 +195,17 @@ dialog::backdrop{background:rgba(10,20,16,.45)}
 @media (prefers-reduced-motion: reduce){
   *{transition:none !important; animation:none !important}
 }
+
+/* Focus states for accessibility */
+:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
+}
+
+/* Settings Dialog Specific */
+.settings-form{display:flex;flex-direction:column;gap:12px;margin:16px 0}
+.setting-group{display:flex;justify-content:space-between;align-items:center}
+.setting-group label{font-size:14px;font-weight:600}
+.setting-group input{width:60px;padding:6px;border:1px solid var(--line);border-radius:6px;font:inherit;text-align:right}
+.settings-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+.settings-actions .btn-primary{width:auto;margin-top:0}
