@@ -406,26 +406,3 @@ if(els.saveSettingsBtn) {
   });
 }
 if(els.settingsDialog) els.settingsDialog.addEventListener("click", (e) => { if (e.target === els.settingsDialog) els.settingsDialog.close(); });
-  els.dlDurationInput.value = TEST_CONFIG.dlDuration;
-  els.dlParallelInput.value = TEST_CONFIG.dlParallel;
-  els.ulDurationInput.value = TEST_CONFIG.ulDuration;
-  els.ulParallelInput.value = TEST_CONFIG.ulParallel;
-}
-applyConfigToUI();
-
-els.settingsBtn.addEventListener("click", () => {
-  applyConfigToUI();
-  els.settingsDialog.showModal();
-});
-els.cancelSettingsBtn.addEventListener("click", () => els.settingsDialog.close());
-els.saveSettingsBtn.addEventListener("click", () => {
-  TEST_CONFIG = {
-    dlDuration: Math.max(5, Math.min(30, parseInt(els.dlDurationInput.value, 10) || 10)),
-    dlParallel: Math.max(1, Math.min(10, parseInt(els.dlParallelInput.value, 10) || 4)),
-    ulDuration: Math.max(5, Math.min(30, parseInt(els.ulDurationInput.value, 10) || 10)),
-    ulParallel: Math.max(1, Math.min(10, parseInt(els.ulParallelInput.value, 10) || 3)),
-  };
-  try{ localStorage.setItem(CONFIG_KEY, JSON.stringify(TEST_CONFIG)); }catch{}
-  els.settingsDialog.close();
-});
-els.settingsDialog.addEventListener("click", (e) => { if (e.target === els.settingsDialog) els.settingsDialog.close(); });
