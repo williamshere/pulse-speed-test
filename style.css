@@ -201,11 +201,3 @@ dialog::backdrop{background:rgba(10,20,16,.45)}
   outline: 2px solid var(--teal);
   outline-offset: 2px;
 }
-
-/* Settings Dialog Specific */
-.settings-form{display:flex;flex-direction:column;gap:12px;margin:16px 0}
-.setting-group{display:flex;justify-content:space-between;align-items:center}
-.setting-group label{font-size:14px;font-weight:600}
-.setting-group input{width:60px;padding:6px;border:1px solid var(--line);border-radius:6px;font:inherit;text-align:right}
-.settings-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
-.settings-actions .btn-primary{width:auto;margin-top:0}
