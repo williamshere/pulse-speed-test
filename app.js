@@ -1,3 +1,5 @@
+import { pingStatistics } from "./metrics.js";
+
 const $ = document.querySelector.bind(document);
 const els = {
   gaugeValue: $("#gaugeValue"), gaugeLabel: $("#gaugeLabel"), gaugeArc: $("#gaugeArc"),
@@ -56,17 +58,16 @@ async function measurePing(signal){
   for(let i=0;i<10;i++){
     if(signal.aborted) break;
     const s=performance.now();
-    try{ await fetch(`${DL_URL}?bytes=0`, {signal, cache:'no-store'}); }catch{}
-    times.push(performance.now()-s);
-    totalBytes+=100;
+    try{
+      const response = await fetch(`${DL_URL}?bytes=0`, {signal, cache:'no-store'});
+      if(!response.ok) continue;
+      times.push(performance.now()-s);
+      totalBytes+=100;
+    }catch(error){
+      if(signal.aborted) throw error;
+    }
   }
-  if(times.length===0) return {ping:0, jitter:0};
-  times.sort((a,b)=>a-b);
-  const med = times[Math.floor(times.length/2)];
-  let jitters=[];
-  for(let i=1;i<times.length;i++) jitters.push(Math.abs(times[i]-times[i-1]));
-  const jMed = jitters.length>0 ? jitters[Math.floor(jitters.length/2)] : 0;
-  return {ping: med, jitter: jMed};
+  return pingStatistics(times);
 }
 
 // --- Download ---
@@ -84,6 +85,7 @@ async function measureDownload(signal, onProgress){
     while(performance.now()-start < DURATION_MS && !signal.aborted){
       try{
         const r = await fetch(`${DL_URL}?bytes=${targetSize}`, {signal, cache:'no-store'});
+        if(!r.ok) throw new Error(`Download request failed: HTTP ${r.status}`);
         const b = parseInt(r.headers.get("content-length")||"0",10) || targetSize;
         await r.arrayBuffer(); // consume
         bytes += b;
@@ -113,6 +115,7 @@ async function measureDownload(signal, onProgress){
   try{ await Promise.all(Array.from({length: PARALLEL}, worker)); }
   finally{ clearInterval(progressTimer); }
 
+  if(bytes===0 && !signal.aborted) throw new Error("Download measurement failed: no data received.");
   const elapsed = (performance.now()-start)/1000;
   const mbps = (bytes*8)/(elapsed*1_000_000);
   totalBytes += bytes;
@@ -138,7 +141,8 @@ async function measureUpload(signal, onProgress){
     while(performance.now()-start < DURATION_MS && !signal.aborted){
       try{
         const payload = getPayload(targetSize);
-        await fetch(UL_URL, {method:'POST', signal, body:payload, headers:{'Content-Type':'application/octet-stream'}});
+        const response = await fetch(UL_URL, {method:'POST', signal, body:payload, headers:{'Content-Type':'application/octet-stream'}});
+        if(!response.ok) throw new Error(`Upload request failed: HTTP ${response.status}`);
         bytes += payload.length;
         targetSize = Math.min(targetSize*2, 2_000_000);
       }catch{
@@ -165,6 +169,7 @@ async function measureUpload(signal, onProgress){
   try{ await Promise.all(Array.from({length: PARALLEL}, worker)); }
   finally{ clearInterval(progressTimer); }
 
+  if(bytes===0 && !signal.aborted) throw new Error("Upload measurement failed: no data received.");
   const elapsed = (performance.now()-start)/1000;
   const mbps = (bytes*8)/(elapsed*1_000_000);
   totalBytes += bytes;

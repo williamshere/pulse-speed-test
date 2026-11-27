@@ -4,6 +4,7 @@ import { readFileSync, existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import assert from "node:assert/strict";
+import { pingStatistics } from "../metrics.js";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const html = readFileSync(join(root, "index.html"), "utf8");
@@ -30,5 +31,8 @@ assert.doesNotMatch(html, /amazon\.com|amzn\.to/i, "no placeholder affiliate lin
 
 // Panel is styled consistently with the rest of the site
 assert.match(css, /\.fix-panel/, "style.css must style the fix panel");
+
+assert.deepEqual(pingStatistics([10, 100, 20, 30]), { ping: 30, jitter: 80 });
+assert.throws(() => pingStatistics([]), /no requests succeeded/);
 
 console.log("monetization.test.mjs: all checks passed");
